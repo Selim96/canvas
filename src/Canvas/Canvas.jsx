@@ -1,0 +1,7 @@
+function Canvas() {
+
+}
+
+module.exports = {
+    
+}
