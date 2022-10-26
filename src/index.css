@@ -13,11 +13,11 @@ code {
 }
 
 .wrapper {
-  margin: 0 auto;
-  text-align: center;
+  
 }
 
 .canvas {
+  margin: 0 auto;
   border: solid 2px red;
-  
+  display: block;
 }
