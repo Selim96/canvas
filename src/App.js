@@ -44,6 +44,14 @@ function drawLine(ctx, line) {
 let isStartDrawing = false;
 let mouseStartPos = null;
 
+const mouse = {
+  isStartDrawing: false,
+  mouseStartPos: null,
+  currentPos: null,
+  setStart(e, elem) {
+    this.isStartDrawing = true
+  }
+}
 
 function getMousePosition(click) {
   let rect = canvas.getBoundingClientRect();
@@ -91,14 +99,6 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.oncontextmenu = ((e) => {
   return false;
 });
-// canvas.oncontextmenu = (function (e) {
-  
-//   if (isRMBActive) {
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-//   }
-//   // isRMBActive = false;
-//   return false;
-// });
 
 
 
