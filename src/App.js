@@ -69,9 +69,12 @@ const mouse = {
 
 const ctx = canvas.getContext("2d");
 const lines = [];
+const points = [{x: 100, y: 150},];
 
 function drawLine(ctx, line) {
-  const {start, end } = line;
+  const { start, end, k, b } = line;
+  
+  console.log('start x & y:', start.x, start.y, ';', 'end x & y:', end.x, end.y, ';', 'k:', k, 'b:', b)
   ctx.beginPath();
   ctx.moveTo(start.x, start.y);
   ctx.lineWidth = 3;
@@ -79,11 +82,24 @@ function drawLine(ctx, line) {
   ctx.stroke();
 };
 
+function drawPoints(ctx, point) {
+  const { x, y } = point;
+  ctx.beginPath();
+  ctx.fillStyle = 'red';
+  ctx.arc(x, y, 5, 0, Math.PI * 2, true);
+  ctx.fill();
+};
+
+
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); 
   lines.forEach(line => {
     drawLine(ctx, line);
-  })
+  });
+  points.forEach(point => {
+    drawPoints(ctx, point);
+  });
 };
 
 function handleMouseClick(e) {
@@ -108,7 +124,8 @@ function handleMouseClick(e) {
     mouse.setStartFalse();
     if (mouse.isDeleteLine) {
       mouse.deleteLine();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      lines.pop();
     }
   }
 
@@ -124,7 +141,10 @@ function handleMouseMove(e) {
     let line = {
       start: mouse.mouseStartPos,
       end: mouse.currentPos,
+      // k: (this.end.y - this.start.y) / (this.end.x - this.start.x),
+      // b: this.start.y - this.k * this.start.x,
     }
+    console.log(line)
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines.pop();
     lines.push(line);
