@@ -67,14 +67,31 @@ const mouse = {
   }
 };
 
+class Line {
+  #k = null;
+  #b = null;
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+    this.#k = (this.end.y - this.start.y) / (this.end.x - this.start.x);
+    this.#b = this.start.y - this.#k * this.start.x;
+  };
+
+  k() {
+    return this.#k;
+  }
+  b() {
+    return this.#b;
+  }
+};
+
 const ctx = canvas.getContext("2d");
 const lines = [];
-const points = [{x: 100, y: 150},];
+const points = [];
 
 function drawLine(ctx, line) {
-  const { start, end, k, b } = line;
+  const { start, end, } = line;
   
-  console.log('start x & y:', start.x, start.y, ';', 'end x & y:', end.x, end.y, ';', 'k:', k, 'b:', b)
   ctx.beginPath();
   ctx.moveTo(start.x, start.y);
   ctx.lineWidth = 3;
@@ -109,13 +126,22 @@ function handleMouseClick(e) {
     mouse.setStart(e, canvas);
     mouse.deleteLine();
   
-    const line = {
-      start: mouse.mouseStartPos,
-      end: mouse.mouseStartPos
-    };
-    
+    const line = new Line(mouse.mouseStartPos, mouse.mouseStartPos);
+
     if (mouse.isStartDrawing) {
       lines.push(line);
+
+      lines.forEach((element, index, array) => {
+      
+      console.log(element.k() * line.start.x + element.b() === line.start.y)
+        if (array.indexOf(line) !== index) {
+        if (element.k() * line.start.x + element.b() === line.start.y) {
+        console.log(lines.start)
+        points.push({ ...mouse.mouseStartPos });
+      }
+      }
+      });
+      
       draw();
     };
   }
@@ -123,9 +149,9 @@ function handleMouseClick(e) {
   if (e.button === 2) {
     mouse.setStartFalse();
     if (mouse.isDeleteLine) {
+      lines.pop();
       mouse.deleteLine();
       // ctx.clearRect(0, 0, canvas.width, canvas.height);
-      lines.pop();
     }
   }
 
@@ -138,13 +164,8 @@ function handleMouseMove(e) {
   if (mouse.isStartDrawing) {
     mouse.setCurrent(e, canvas);
 
-    let line = {
-      start: mouse.mouseStartPos,
-      end: mouse.currentPos,
-      // k: (this.end.y - this.start.y) / (this.end.x - this.start.x),
-      // b: this.start.y - this.k * this.start.x,
-    }
-    console.log(line)
+    let line = new Line(mouse.mouseStartPos, mouse.currentPos);
+
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines.pop();
     lines.push(line);
