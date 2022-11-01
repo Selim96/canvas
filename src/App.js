@@ -62,7 +62,7 @@ const mouse = {
     return { x, y };
   },
 
-  deleteLine() {
+  setDeleteLine() {
     this.isDeleteLine = !this.isDeleteLine;
   }
 };
@@ -70,52 +70,82 @@ const mouse = {
 class Line {
   #k = null;
   #b = null;
+  #points = [];
   constructor(start, end) {
     this.start = start;
     this.end = end;
     this.#k = (this.end.y - this.start.y) / (this.end.x - this.start.x);
     this.#b = this.start.y - this.#k * this.start.x;
+    this.#points = this.addPoints();
   };
 
   k() {
     return this.#k;
-  }
+  };
   b() {
     return this.#b;
+  };
+  points() {
+    return this.#points;
   }
+  pushPoint(point) {
+    this.#points.push(point);
+  }
+
+  addPoints() {
+    const lineK = this.k();
+    const lineB = this.b();
+
+    lines.forEach((element, index, array) => {
+      if (array.length - 1 !== index) {
+        const { start, end } = element;
+        const elemK = element.k();
+        const elemB = element.b();
+        
+        const startX = this.start.x;
+        const startY = this.start.y;
+        const endX = this.end.x;
+        const endY = this.end.y;
+        
+        const pointX = (lineB - elemB) / (elemK - lineK);
+        const pointY = lineK * pointX + lineB;
+        
+        if (Math.max(Math.abs(pointX - startX), Math.abs(pointX - endX)) <= Math.abs(endX - startX) && Math.max(Math.abs(pointX - start.x), Math.abs(pointX - end.x)) <= Math.abs(end.x - start.x)) {
+          console.log('add')
+          this.pushPoint({x: pointX , y: pointY});
+        }
+      }
+    });
+  }
+
+  drawLine(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(this.start.x, this.start.y);
+    ctx.lineWidth = 3;
+    ctx.lineTo(this.end.x, this.end.y);
+    ctx.stroke();
+
+    this.drawPoints(ctx);
+  };
+
+  drawPoints(ctx) {
+    this.points().forEach(point => {
+      const { x, y } = point;
+      ctx.beginPath();
+      ctx.fillStyle = 'red';
+      ctx.arc(x, y, 5, 0, Math.PI * 2, true);
+      ctx.fill();
+    });
+  };
 };
 
 const ctx = canvas.getContext("2d");
 const lines = [];
-const points = [];
-
-function drawLine(ctx, line) {
-  const { start, end, } = line;
-  
-  ctx.beginPath();
-  ctx.moveTo(start.x, start.y);
-  ctx.lineWidth = 3;
-  ctx.lineTo(end.x, end.y);
-  ctx.stroke();
-};
-
-function drawPoints(ctx, point) {
-  const { x, y } = point;
-  ctx.beginPath();
-  ctx.fillStyle = 'red';
-  ctx.arc(x, y, 5, 0, Math.PI * 2, true);
-  ctx.fill();
-};
-
-
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); 
   lines.forEach(line => {
-    drawLine(ctx, line);
-  });
-  points.forEach(point => {
-    drawPoints(ctx, point);
+    line.drawLine.call(line, ctx);
   });
 };
 
@@ -124,24 +154,23 @@ function handleMouseClick(e) {
 
   if (e.button === 0) {
     mouse.setStart(e, canvas);
-    mouse.deleteLine();
+    mouse.setDeleteLine();
   
     const line = new Line(mouse.mouseStartPos, mouse.mouseStartPos);
-
+    console.log(line.points())
     if (mouse.isStartDrawing) {
       lines.push(line);
 
-      lines.forEach((element, index, array) => {
+      // lines.forEach((element, index, array) => {
       
-      console.log(element.k() * line.start.x + element.b() === line.start.y)
-        if (array.indexOf(line) !== index) {
-        if (element.k() * line.start.x + element.b() === line.start.y) {
-        console.log(lines.start)
-        points.push({ ...mouse.mouseStartPos });
-      }
-      }
-      });
-      
+      //   if (array.length - 1 !== index) {
+      //     console.log('in func')
+      //   if (element.k() * line.start.x + element.b() === line.start.y) {
+      //     console.log(lines.start)
+      //     points.push({ ...mouse.mouseStartPos });
+      //     }
+      //   }
+      // });
       draw();
     };
   }
@@ -150,7 +179,8 @@ function handleMouseClick(e) {
     mouse.setStartFalse();
     if (mouse.isDeleteLine) {
       lines.pop();
-      mouse.deleteLine();
+      mouse.setDeleteLine();
+      draw();
       // ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   }
@@ -165,24 +195,18 @@ function handleMouseMove(e) {
     mouse.setCurrent(e, canvas);
 
     let line = new Line(mouse.mouseStartPos, mouse.currentPos);
-
+    
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
     lines.pop();
+    
     lines.push(line);
+    
     draw();
   }
 };
 
 canvas.addEventListener('mousedown', handleMouseClick);
 canvas.addEventListener('mousemove', handleMouseMove);
-
-function getMousePosition(click) {
-  let rect = canvas.getBoundingClientRect();
-  
-  const x = click.clientX - rect.left;
-  const y = click.clientY - rect.top;
-  return {x, y};
-};
 
 // canvas.addEventListener('mousedown', (e) => {
 //   e.preventDefault();
