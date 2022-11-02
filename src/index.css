@@ -13,11 +13,15 @@ code {
 }
 
 .wrapper {
-  
+  padding-top: 15px;
 }
 
 .canvas {
   margin: 0 auto;
   border: solid 2px red;
   display: block;
+}
+
+.app {
+  padding-top: 15px;
 }

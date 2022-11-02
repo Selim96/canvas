@@ -1,9 +1,9 @@
 import s from "./CollapseBtn.module.scss";
 
-function CollapsBtn() {
+function CollapsBtn({func}) {
     
     return (
-        <button type="button" className={s.button}>Collapse lines</button>
+        <button type="button" className={s.button} onClick={() => func()}>Collapse lines</button>
     )
 };
 
